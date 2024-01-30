@@ -2,11 +2,10 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 //
-// Copyright (c) 2014-2022 VMware, Inc. or its affiliates. All rights reserved.
+// Copyright (c) 2014-2023 Broadcom. All Rights Reserved. The term "Broadcom" refers to Broadcom Inc. and/or its subsidiaries.
 package com.rabbitmq.jms.client;
 
 import com.rabbitmq.client.AMQP.BasicProperties;
-import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Envelope;
 import com.rabbitmq.client.GetResponse;
 import com.rabbitmq.jms.admin.RMQDestination;
@@ -39,6 +38,8 @@ class RMQMessageTest {
         session = mock(RMQSession.class);
         getResponse = mock(GetResponse.class);
         consumer = mock(ReceivingContextConsumer.class);
+
+        when(session.getReplyToStrategy()).thenReturn(DefaultReplyToStrategy.INSTANCE);
     }
 
 
@@ -91,6 +92,27 @@ class RMQMessageTest {
         assertNull(result.getJMSReplyTo());
     }
 
+    @Test
+    @DisplayName("RMQMessage::convertMessage - amqp message - JMSXDeliveryCount is set to default if no header is available")
+    void convertAMQPMessageWithRedeliverFlagAndNoHeaders() throws JMSException {
+
+        BasicProperties props = mock(BasicProperties.class);
+        Envelope envelope = mock(Envelope.class);
+
+        when(getResponse.getProps()).thenReturn(props);
+        when(props.getHeaders()).thenReturn(null);
+        when(getResponse.getEnvelope()).thenReturn(envelope);
+        when(envelope.isRedeliver()).thenReturn(true);
+
+        RMQDestination destination = new RMQDestination("dest", "exch", "key", "queue");
+        destination.setAmqp(true);
+
+        RMQMessage result = RMQMessage.convertMessage(session, destination, getResponse, consumer);
+
+        // if no header information (=null) is given, fall back to default delivery count
+        assertEquals(2, result.getIntProperty("JMSXDeliveryCount"));
+    }
+    
     @Test
     @DisplayName("RMQMessage::convertMessage - amqp message - ensure JMS reply to is set to direct reply to")
     void convertAMQPMessageWithDirectReplyTo() throws JMSException {

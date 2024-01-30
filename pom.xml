@@ -6,7 +6,7 @@
 
   <name>rabbitmq-jms</name>
   <description>RabbitMQ JMS Client</description>
-  <version>2.9.0-SNAPSHOT</version>
+  <version>2.10.0-SNAPSHOT</version>
   <url>https://www.rabbitmq.com</url>
 
   <packaging>jar</packaging>
@@ -28,7 +28,7 @@
     <developer>
       <email>info@rabbitmq.com</email>
       <name>Team RabbitMQ</name>
-      <organization>VMware, Inc. or its affiliates.</organization>
+      <organization>Broadcom Inc. and its subsidiaries.</organization>
       <organizationUrl>https://rabbitmq.com</organizationUrl>
     </developer>
   </developers>
@@ -36,35 +36,35 @@
   <scm>
     <url>https://github.com/rabbitmq/rabbitmq-jms-client</url>
     <connection>scm:git:git://github.com/rabbitmq/rabbitmq-jms-client.git</connection>
-    <developerConnection>scm:git:git@github.com:rabbitmq/rabbitmq-jms-client.git</developerConnection>
+    <developerConnection>scm:git:https://github.com/rabbitmq/rabbitmq-jms-client.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
 
   <properties>
-    <rabbitmq.version>5.17.0</rabbitmq.version>
-    <junit.jupiter.version>5.9.3</junit.jupiter.version>
-    <mockito-core.version>5.3.1</mockito-core.version>
-    <assertj.version>3.24.2</assertj.version>
+    <rabbitmq.version>5.20.0</rabbitmq.version>
+    <junit.jupiter.version>5.10.1</junit.jupiter.version>
+    <mockito-core.version>5.10.0</mockito-core.version>
+    <assertj.version>3.25.2</assertj.version>
     <spring.version>5.3.23</spring.version>
-    <logback.version>1.2.12</logback.version>
+    <logback.version>1.2.13</logback.version>
 
-    <maven.dependency.plugin.version>3.6.0</maven.dependency.plugin.version>
-    <maven.compiler.plugin.version>3.11.0</maven.compiler.plugin.version>
-    <maven.surefire.plugin.version>3.1.0</maven.surefire.plugin.version>
-    <maven.failsafe.plugin.version>3.1.0</maven.failsafe.plugin.version>
+    <maven.dependency.plugin.version>3.6.1</maven.dependency.plugin.version>
+    <maven.compiler.plugin.version>3.12.1</maven.compiler.plugin.version>
+    <maven.surefire.plugin.version>3.2.5</maven.surefire.plugin.version>
+    <maven.failsafe.plugin.version>3.2.5</maven.failsafe.plugin.version>
     <maven.jar.plugin.version>3.3.0</maven.jar.plugin.version>
-    <build.helper.maven.plugin.version>3.4.0</build.helper.maven.plugin.version>
+    <build.helper.maven.plugin.version>3.5.0</build.helper.maven.plugin.version>
     <maven.antrun.plugin.version>1.8</maven.antrun.plugin.version>
-    <maven.release.plugin.version>3.0.0</maven.release.plugin.version>
+    <maven.release.plugin.version>3.0.1</maven.release.plugin.version>
     <maven.sources.plugin.version>3.3.0</maven.sources.plugin.version>
-    <maven.javadoc.plugin.version>3.5.0</maven.javadoc.plugin.version>
+    <maven.javadoc.plugin.version>3.6.3</maven.javadoc.plugin.version>
     <maven.gpg.plugin.version>3.1.0</maven.gpg.plugin.version>
     <maven.packagecloud.wagon.version>0.0.6</maven.packagecloud.wagon.version>
     <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
     <checksum.maven.plugin.version>1.11</checksum.maven.plugin.version>
     <build-helper-plugin.version>3.3.0</build-helper-plugin.version>
-    <asciidoctor.maven.plugin.version>2.2.4</asciidoctor.maven.plugin.version>
-    <asciidoctorj.version>2.5.9</asciidoctorj.version>
+    <asciidoctor.maven.plugin.version>2.2.5</asciidoctor.maven.plugin.version>
+    <asciidoctorj.version>2.5.11</asciidoctorj.version>
 
     <java.compile.version>1.8</java.compile.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -182,6 +182,12 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${maven.surefire.plugin.version}</version>
+        <configuration>
+          <argLine>${test-arguments}</argLine>
+          <systemPropertyVariables>
+            <net.bytebuddy.experimental>true</net.bytebuddy.experimental>
+          </systemPropertyVariables>
+        </configuration>
       </plugin>
 
       <plugin>
@@ -206,11 +212,11 @@
         <artifactId>maven-failsafe-plugin</artifactId>
         <version>${maven.failsafe.plugin.version}</version>
         <configuration>
-          <encoding>UTF-8</encoding>
+          <argLine>${test-arguments}</argLine>
           <systemPropertyVariables>
+            <net.bytebuddy.experimental>true</net.bytebuddy.experimental>
             <test-broker.A.nodename>${test-broker.A.nodename}</test-broker.A.nodename>
           </systemPropertyVariables>
-          <argLine>-Xms1024m -Xmx4096m</argLine>
         </configuration>
         <executions>
           <execution>
@@ -338,6 +344,16 @@
       </activation>
       <properties>
         <mockito-core.version>4.11.0</mockito-core.version>
+      </properties>
+    </profile>
+
+    <profile>
+      <id>jvm-test-arguments-java-21-and-more</id>
+      <activation>
+        <jdk>[21,)</jdk>
+      </activation>
+      <properties>
+        <test-arguments>-XX:+EnableDynamicAgentLoading</test-arguments>
       </properties>
     </profile>
 

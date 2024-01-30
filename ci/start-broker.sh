@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-RABBITMQ_IMAGE=${RABBITMQ_IMAGE:-rabbitmq:3.11}
-DELAYED_MESSAGE_EXCHANGE_PLUGIN_VERSION=${DELAYED_MESSAGE_EXCHANGE_PLUGIN_VERSION:-3.11.1}
+RABBITMQ_IMAGE=${RABBITMQ_IMAGE:-rabbitmq:3.12}
+DELAYED_MESSAGE_EXCHANGE_PLUGIN_VERSION=${DELAYED_MESSAGE_EXCHANGE_PLUGIN_VERSION:-3.12.0}
 
 wait_for_message() {
   while ! docker logs "$1" | grep -q "$2";
@@ -16,6 +16,7 @@ make -C "${PWD}"/tls-gen/basic
 mkdir -p rabbitmq-configuration/tls
 cp -R "${PWD}"/tls-gen/basic/result/* rabbitmq-configuration/tls
 chmod o+r rabbitmq-configuration/tls/*
+chmod g+r rabbitmq-configuration/tls/*
 
 echo "[rabbitmq_jms_topic_exchange,rabbitmq_delayed_message_exchange]." > rabbitmq-configuration/enabled_plugins
 

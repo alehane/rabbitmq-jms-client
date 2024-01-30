@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 //
-// Copyright (c) 2013-2023 VMware, Inc. or its affiliates. All rights reserved.
+// Copyright (c) 2013-2023 Broadcom. All Rights Reserved. The term "Broadcom" refers to Broadcom Inc. and/or its subsidiaries.
 package com.rabbitmq.jms.client;
 
 import com.rabbitmq.jms.client.Subscription.Context;
@@ -282,7 +282,8 @@ public class RMQSession implements Session, QueueSession, TopicSession {
         }
         this.delayedMessageService = sessionParams.getDelayedMessageService();
 
-        this.replyToStrategy = sessionParams.getReplyToStrategy();
+        this.replyToStrategy = sessionParams.getReplyToStrategy() == null ?
+            DefaultReplyToStrategy.INSTANCE : sessionParams.getReplyToStrategy();
         this.receivePollingInterval = sessionParams.getReceivePollingInterval();
 
         if (transacted) {

@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 //
-// Copyright (c) 2016-2022 VMware, Inc. or its affiliates. All rights reserved.
+// Copyright (c) 2016-2023 Broadcom. All Rights Reserved. The term "Broadcom" refers to Broadcom Inc. and/or its subsidiaries.
 package com.rabbitmq.jms.client;
 
 import com.rabbitmq.client.AMQP;
@@ -117,10 +117,10 @@ public class SessionParams {
     private DelayedMessageService delayedMessageService;
 
     /**
-     * The reply to strategy to use when processing a received
-     * message with a reply to property.
+     * The reply-to strategy to use when processing a received
+     * message with a reply-to property.
      *
-     * @Since 2.9.0
+     * @since 2.9.0
      */
     private ReplyToStrategy replyToStrategy = DefaultReplyToStrategy.INSTANCE;
 

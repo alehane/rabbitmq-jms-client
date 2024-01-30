@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2023 VMware, Inc. or its affiliates. All rights reserved. */
+/* Copyright (c) 2013-2023 Broadcom. All Rights Reserved. The term "Broadcom" refers to Broadcom Inc. and/or its subsidiaries. */
 package com.rabbitmq.jms.admin;
 
 import java.security.NoSuchAlgorithmException;
@@ -15,6 +15,7 @@ import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.Queue;
 import javax.jms.Topic;
+import com.rabbitmq.jms.client.AuthenticationMechanism;
 import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NamingException;
@@ -224,6 +225,15 @@ public class RMQObjectFactory implements ObjectFactory {
         f.setDeclareReplyToDestination(getBooleanProperty(ref, environment, "declareReplyToDestination", true, true));
         f.setKeepTextMessageType(getBooleanProperty(ref, environment, "keepTextMessageType", true, false));
         f.setNackOnRollback(getBooleanProperty(ref, environment, "nackOnRollback", true, false));
+
+        String authenticationMechanismString = getStringProperty(ref, environment, "authenticationMechanism", true, null);
+        if (authenticationMechanismString != null) {
+            try {
+                f.setAuthenticationMechanism(AuthenticationMechanism.valueOf(authenticationMechanismString));
+            } catch (IllegalArgumentException e) {
+                LOGGER.warn("Failed to set AuthenticationMechanism on RMQConnectionFactory.", e);
+            }
+        }
         return f;
     }
 

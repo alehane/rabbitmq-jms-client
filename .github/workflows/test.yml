@@ -9,26 +9,22 @@ on:
       - 2.x.x-stable
   workflow_dispatch:
 
-env:
-  RABBITMQ_IMAGE: 'rabbitmq:3.11'
-  DELAYED_MESSAGE_EXCHANGE_PLUGIN_VERSION: 3.11.1
-
 jobs:
   build:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Checkout tls-gen
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: rabbitmq/tls-gen
           path: './tls-gen'
       - name: Set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: 'zulu'
+          java-version: '21'
           cache: 'maven'
           server-id: ossrh
           server-username: MAVEN_USERNAME
@@ -54,7 +50,7 @@ jobs:
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
       - name: Trigger Compliance Test Suite run
         if: ${{ github.event_name != 'pull_request' }}
-        uses: peter-evans/repository-dispatch@v2
+        uses: peter-evans/repository-dispatch@v3
         with:
           event-type: new_client_snapshot
           repository: rabbitmq/rabbitmq-jms-cts
@@ -67,4 +63,4 @@ jobs:
         run: |
           git config user.name "rabbitmq-ci"
           git config user.email "rabbitmq-ci@users.noreply.github.com"
-          ./publish-documentation-to-github-pages.sh
+          ci/publish-documentation-to-github-pages.sh

@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 //
-// Copyright (c) 2013-2023 VMware, Inc. or its affiliates. All rights reserved.
+// Copyright (c) 2013-2023 Broadcom. All Rights Reserved. The term "Broadcom" refers to Broadcom Inc. and/or its subsidiaries.
 package com.rabbitmq.jms.client;
 
 import com.rabbitmq.client.BasicProperties;
@@ -847,7 +847,7 @@ public abstract class RMQMessage implements Message, Cloneable {
         // JMSProperties already set
         message.setReadonly(true);                                              // Set readOnly - mandatory for received messages
 
-        maybeSetupDirectReplyTo(session, dest, message, response.getProps().getReplyTo());
+        maybeSetupDirectReplyTo(session, message, response.getProps().getReplyTo());
         receivingContextConsumer.accept(new ReceivingContext(message));
 
         return message;
@@ -867,7 +867,7 @@ public abstract class RMQMessage implements Message, Cloneable {
             message.setJMSPropertiesFromAmqpProperties(props);
             message.setReadonly(true);                                              // Set readOnly - mandatory for received messages
 
-            maybeSetupDirectReplyTo(session, dest, message, response.getProps().getReplyTo());
+            maybeSetupDirectReplyTo(session, message, response.getProps().getReplyTo());
             receivingContextConsumer.accept(new ReceivingContext(message));
 
             return message;
@@ -881,7 +881,8 @@ public abstract class RMQMessage implements Message, Cloneable {
         boolean redelivered = response.getEnvelope().isRedeliver();
         message.setJMSRedelivered(redelivered);
         if (redelivered) {
-            Number deliveryCount = (Number) response.getProps().getHeaders().get("x-delivery-count");
+            Map<String, Object> headers = response.getProps().getHeaders();
+            Number deliveryCount = headers != null ? (Number) headers.get("x-delivery-count") : null;
             if (deliveryCount == null) {
                 message.setIntProperty(JMS_X_DELIVERY_COUNT, 2);
             } else {
@@ -910,13 +911,8 @@ public abstract class RMQMessage implements Message, Cloneable {
      * @throws JMSException
      * @since 1.11.0
      */
-    private static void maybeSetupDirectReplyTo(RMQSession session, RMQDestination dest, RMQMessage message, String replyTo) throws JMSException {
-        if (session.getReplyToStrategy() != null) {
-            session.getReplyToStrategy().handleReplyTo(dest, message, replyTo);
-        } else {
-            // Ensure that we alway apply the default strategy if one is missing:
-            DefaultReplyToStrategy.INSTANCE.handleReplyTo(dest, message, replyTo);
-        }
+    private static void maybeSetupDirectReplyTo(RMQSession session, RMQMessage message, String replyTo) throws JMSException {
+        session.getReplyToStrategy().handleReplyTo(message, replyTo);
     }
 
     /**
