@@ -33,13 +33,26 @@ class DelayedReceiver {
     private final Object responseLock = new Object();
     private boolean aborted = false; // @GuardedBy(responseLock)
 
+    private TimeTracker pollingInterval = POLLING_INTERVAL;
+
     /**
      * @param batchingSize - the intended limit of messages that can be pre-fetched.
      * @param rmqMessageConsumer - the JMS MessageConsumer we are serving.
      */
     public DelayedReceiver(int batchingSize, RMQMessageConsumer rmqMessageConsumer) {
+        this(batchingSize, rmqMessageConsumer, null);
+    }
+
+    /**
+     * @param batchingSize - the intended limit of messages that can be pre-fetched.
+     * @param rmqMessageConsumer - the JMS MessageConsumer we are serving.
+     * @param pollingInt - the polling interval to user (can be null)
+     * @since 2.10.0
+     */
+    public DelayedReceiver(int batchingSize, RMQMessageConsumer rmqMessageConsumer, Long pollingInt) {
         this.batchingSize = batchingSize;
         this.rmqMessageConsumer = rmqMessageConsumer;
+        setPollingInterval(pollingInt);
     }
 
     /**
@@ -56,7 +69,7 @@ class DelayedReceiver {
                     resp = this.rmqMessageConsumer.getFromRabbitQueue();
                     if (resp != null)
                         break;
-                    new TimeTracker(POLLING_INTERVAL).timedWait(this.responseLock);
+                    new TimeTracker(pollingInterval != null ? pollingInterval : POLLING_INTERVAL).timedWait(this.responseLock);
                 }
                 return resp;
             }
@@ -65,6 +78,15 @@ class DelayedReceiver {
             logger.warn("Get interrupted while buffer.poll-ing.", e);
             Thread.currentThread().interrupt();
             return null;
+        }
+    }
+
+    public void setPollingInterval(final Long pollingInt) {
+        // Only update the polling interval if we're a positive long:
+        if (pollingInt != null && pollingInt.longValue() > 1) {
+            pollingInterval = new TimeTracker(pollingInt.longValue(), TimeUnit.MILLISECONDS);
+        } else {
+            logger.warn("Invalid or missing polling interval: " + pollingInt);
         }
     }
 

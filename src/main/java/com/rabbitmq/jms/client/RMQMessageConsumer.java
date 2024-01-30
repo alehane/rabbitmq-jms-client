@@ -114,7 +114,7 @@ class RMQMessageConsumer implements MessageConsumer, QueueReceiver, TopicSubscri
         this.session = session;
         this.destination = destination;
         this.uuidTag = uuidTag;
-        this.delayedReceiver = new DelayedReceiver(DEFAULT_BATCHING_SIZE, this);
+        this.delayedReceiver = new DelayedReceiver(DEFAULT_BATCHING_SIZE, this, session.getReceivePollingInterval());
         this.messageSelector = messageSelector;
         if (!paused)
             this.receiveManager.openGate();

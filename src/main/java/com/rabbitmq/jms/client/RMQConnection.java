@@ -172,6 +172,13 @@ public class RMQConnection implements Connection, QueueConnection, TopicConnecti
     private final ReplyToStrategy replyToStrategy;
 
     /**
+     * The polling interval to use to override the default 100ms value when listening for messages.
+     *
+     * @Since 2.10.0
+     */
+    private final Long receivePollingInterval;
+
+    /**
      * Creates an RMQConnection object.
      * @param connectionParams parameters for this connection
      */
@@ -201,6 +208,7 @@ public class RMQConnection implements Connection, QueueConnection, TopicConnecti
         this.validateSubscriptionNames = connectionParams.isValidateSubscriptionNames();
         this.delayedMessageService = new DelayedMessageService();
         this.replyToStrategy = connectionParams.getReplyToStrategy();
+        this.receivePollingInterval = connectionParams.getReceivePollingInterval();
     }
 
     /**
@@ -260,6 +268,7 @@ public class RMQConnection implements Connection, QueueConnection, TopicConnecti
             .setValidateSubscriptionNames(this.validateSubscriptionNames)
             .setDelayedMessageService(this.delayedMessageService)
             .setReplyToStrategy(this.replyToStrategy)
+            .setReceivePollingInterval(this.receivePollingInterval)
         );
         this.sessions.add(session);
         return session;
@@ -585,5 +594,15 @@ public class RMQConnection implements Connection, QueueConnection, TopicConnecti
      */
     public ReplyToStrategy getReplyToStrategy() {
         return replyToStrategy;
+    }
+
+    /**
+     * Gets the message receive polling interval.
+     *
+     * @return  The message receive polling interval.
+     * @since 2.10.0
+     */
+    public Long getReceivePollingInterval() {
+        return receivePollingInterval;
     }
 }

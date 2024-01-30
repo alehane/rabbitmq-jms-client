@@ -226,6 +226,13 @@ public class RMQSession implements Session, QueueSession, TopicSession {
      */
     private final ReplyToStrategy replyToStrategy;
 
+    /**
+     * The polling interval to use to override the default 100ms value.
+     *
+     * @Since 2.10.0
+     */
+    private Long receivePollingInterval;
+
 
     static boolean validateSessionMode(int sessionMode) {
        return sessionMode >= 0 && sessionMode <= CLIENT_INDIVIDUAL_ACKNOWLEDGE;
@@ -276,6 +283,7 @@ public class RMQSession implements Session, QueueSession, TopicSession {
         this.delayedMessageService = sessionParams.getDelayedMessageService();
 
         this.replyToStrategy = sessionParams.getReplyToStrategy();
+        this.receivePollingInterval = sessionParams.getReceivePollingInterval();
 
         if (transacted) {
             this.acknowledgeMode = Session.SESSION_TRANSACTED;
@@ -322,6 +330,7 @@ public class RMQSession implements Session, QueueSession, TopicSession {
             .setSubscriptions(subscriptions)
             .setDelayedMessageService(delayedMessageService)
             .setReplyToStrategy(connection.getReplyToStrategy())
+            .setReceivePollingInterval(connection.getReceivePollingInterval())
         );
     }
 
@@ -1491,6 +1500,16 @@ public class RMQSession implements Session, QueueSession, TopicSession {
      */
     public ReplyToStrategy getReplyToStrategy() {
         return replyToStrategy;
+    }
+
+    /**
+     * Gets the message receive polling interval.
+     *
+     * @return  The message receive polling interval.
+     * @since 2.10.0
+     */
+    public Long getReceivePollingInterval() {
+        return receivePollingInterval;
     }
 
 }

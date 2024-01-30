@@ -124,6 +124,13 @@ public class SessionParams {
      */
     private ReplyToStrategy replyToStrategy = DefaultReplyToStrategy.INSTANCE;
 
+    /**
+     * The polling interval to use to override the default 100ms value.
+     *
+     * @Since 2.10.0
+     */
+    private Long receivePollingInterval;
+
     public RMQConnection getConnection() {
         return connection;
     }
@@ -293,5 +300,14 @@ public class SessionParams {
 
     public ReplyToStrategy getReplyToStrategy() {
         return replyToStrategy;
+    }
+
+    public SessionParams setReceivePollingInterval(final Long receivePollingInterval) {
+        this.receivePollingInterval = receivePollingInterval;
+        return this;
+    }
+
+    public Long getReceivePollingInterval() {
+        return receivePollingInterval;
     }
 }

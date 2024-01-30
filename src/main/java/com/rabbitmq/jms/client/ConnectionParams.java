@@ -127,6 +127,13 @@ public class ConnectionParams {
      */
     private ReplyToStrategy replyToStrategy = DefaultReplyToStrategy.INSTANCE;
 
+    /**
+     * The polling interval to use to override the default 100ms value.
+     *
+     * @Since 2.10.0
+     */
+    private Long receivePollingInterval;
+
     public Connection getRabbitConnection() {
         return rabbitConnection;
     }
@@ -287,5 +294,14 @@ public class ConnectionParams {
 
     public ReplyToStrategy getReplyToStrategy() {
         return replyToStrategy;
+    }
+
+    public ConnectionParams setReceivePollingInterval(final Long receivePollingInterval) {
+        this.receivePollingInterval = receivePollingInterval;
+        return this;
+    }
+
+    public Long getReceivePollingInterval() {
+        return receivePollingInterval;
     }
 }

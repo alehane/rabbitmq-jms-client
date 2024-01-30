@@ -191,22 +191,22 @@ public class RMQConnectionFactory implements ConnectionFactory, Referenceable, S
      */
     private ConfirmListener confirmListener;
 
-  /**
-   * Flag to insert automatically an interoperability hint in outbound {@link TextMessage}s.
-   *
-   * <p>When set to <code>true</code>, the AMQP <code>JMSType</code> header will be set
-   * automatically to <code>"TextMessage"</code> for {@link TextMessage}s published to AMQP-backed
-   * {@link Destination}s. This way JMS consumers will receive {@link TextMessage}s instead of
-   * {@link BytesMessage}.
-   *
-   * <p>Enabling the feature avoids some additional work in the application code of publishers,
-   * making the publishing and consuming of {@link TextMessage}s through AMQP resources transparent.
-   *
-   * <p>The default is false.
-   *
-   * @since 2.5.0
-   */
-  private boolean keepTextMessageType = false;
+    /**
+     * Flag to insert automatically an interoperability hint in outbound {@link TextMessage}s.
+     *
+     * <p>When set to <code>true</code>, the AMQP <code>JMSType</code> header will be set
+     * automatically to <code>"TextMessage"</code> for {@link TextMessage}s published to AMQP-backed
+     * {@link Destination}s. This way JMS consumers will receive {@link TextMessage}s instead of
+     * {@link BytesMessage}.
+     *
+     * <p>Enabling the feature avoids some additional work in the application code of publishers,
+     * making the publishing and consuming of {@link TextMessage}s through AMQP resources transparent.
+     *
+     * <p>The default is false.
+     *
+     * @since 2.5.0
+     */
+    private boolean keepTextMessageType = false;
 
     /** Default not to use ssl */
     private boolean ssl = false;
@@ -257,13 +257,13 @@ public class RMQConnectionFactory implements ConnectionFactory, Referenceable, S
      */
     private boolean declareReplyToDestination = true;
 
-  /**
-   * Whether to validate subscription names or not, according to JMS 2.0. Default is false (no
-   * validation).
-   *
-   * @since 2.7.0
-   */
-  private boolean validateSubscriptionNames = false;
+    /**
+     * Whether to validate subscription names or not, according to JMS 2.0. Default is false (no
+     * validation).
+     *
+     * @since 2.7.0
+     */
+    private boolean validateSubscriptionNames = false;
 
     /**
      * The strategy to applied to reply to queue handling. Defaults to handling
@@ -272,6 +272,13 @@ public class RMQConnectionFactory implements ConnectionFactory, Referenceable, S
      * @since 2.9.0
      */
     private ReplyToStrategy replyToStrategy = DefaultReplyToStrategy.INSTANCE;
+
+    /**
+     * The polling interval to use to override the default 100ms value when listening for messages.
+     *
+     * @Since 2.10.0
+     */
+    private Long receivePollingInterval;
 
     /**
      * {@inheritDoc}
@@ -356,6 +363,7 @@ public class RMQConnectionFactory implements ConnectionFactory, Referenceable, S
             .setKeepTextMessageType(this.keepTextMessageType)
             .setValidateSubscriptionNames(this.validateSubscriptionNames)
             .setReplyToStrategy(replyToStrategy)
+            .setReceivePollingInterval(receivePollingInterval)
         );
         logger.debug("Connection {} created.", conn);
         return conn;
@@ -1009,7 +1017,7 @@ public class RMQConnectionFactory implements ConnectionFactory, Referenceable, S
     public void setMetricsCollector(MetricsCollector metricsCollector) {
         this.metricsCollector = metricsCollector;
     }
-    
+
     public List<String> getUris() {
         return this.uris.stream().map(uri -> uri.toString()).collect(Collectors.toList());
     }
@@ -1091,6 +1099,27 @@ public class RMQConnectionFactory implements ConnectionFactory, Referenceable, S
     }
 
     /**
+     * Sets the message receiver polling interval to use. This will
+     * default to 100ms if not specified.
+     *
+     * @param receivePollingInterval  The receive polling interval, in ms.
+     * @since 2.10.0
+     */
+    public void setReceivePollingInterval(final Long receivePollingInterval) {
+        this.receivePollingInterval = receivePollingInterval;
+    }
+
+    /**
+     * Gets the message receive polling interval.
+     *
+     * @return  The message receive polling interval.
+     * @since 2.10.0
+     */
+    public Long getReceivePollingInterval() {
+        return receivePollingInterval;
+    }
+
+    /**
      * Set the callback to be notified of publisher confirms.
      * <p>
      * When this property is set, publisher confirms are enabled for all
@@ -1136,15 +1165,15 @@ public class RMQConnectionFactory implements ConnectionFactory, Referenceable, S
         this.keepTextMessageType = keepTextMessageType;
     }
 
-  /**
-   * Whether to validate subscription names or not, according to JMS 2.0. Default is false (no
-   * validation).
-   *
-   * @since 2.7.0
-   */
-  public void setValidateSubscriptionNames(boolean validateSubscriptionNames) {
-    this.validateSubscriptionNames = validateSubscriptionNames;
-  }
+    /**
+     * Whether to validate subscription names or not, according to JMS 2.0. Default is false (no
+     * validation).
+     *
+     * @since 2.7.0
+     */
+    public void setValidateSubscriptionNames(boolean validateSubscriptionNames) {
+        this.validateSubscriptionNames = validateSubscriptionNames;
+    }
 
     @FunctionalInterface
     private interface ConnectionCreator {
